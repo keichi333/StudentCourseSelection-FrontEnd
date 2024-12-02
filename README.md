@@ -1,4 +1,8 @@
-# tlias
+# course selection system
+
+This is the front-end code of a course selection system.
+
+if you want to fork and run this project, you can follow the steps below.
 
 ## Project setup
 ```
