@@ -5,7 +5,7 @@
       <!-- 身份选择 -->
       <el-radio-group v-model="role" style="margin-bottom: 20px;">
         <el-radio label="student">学生</el-radio>
-        <el-radio label="teacher">老师</el-radio>
+        <el-radio label="teacher">教师</el-radio>
         <el-radio label="admin">管理员</el-radio>
       </el-radio-group>
 

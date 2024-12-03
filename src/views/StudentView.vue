@@ -2,14 +2,30 @@
   <el-container style="min-height: 100vh">
     <!-- 侧边栏 -->
     <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-      <el-menu :default-openeds="['1', '3']" style="min-height: 100%; overflow: hidden; padding:0" background-color="rgb(48,65,86)"
+      <el-menu :default-openeds="['1', '2']" style="min-height: 100%; overflow: hidden; padding:0" background-color="rgb(48,65,86)"
         text-color="#fff" active-text-color="rgb(255,255,255,0.5)" class="sidebar-menu">
         <!-- 选课管理 -->
         <el-submenu index="1">
           <template slot="title"><i class="el-icon-notebook"></i>选课管理</template>
           <el-menu-item-group>
             <el-menu-item index="1-1" @click="currentPage = 'classList'">选课</el-menu-item>
-            <el-menu-item index="1-2" @click="currentPage = 'courseSelection'">退课</el-menu-item>
+            <el-menu-item index="1-2" @click="currentPage = 'deleteList'">退课</el-menu-item>
+          </el-menu-item-group>
+        </el-submenu>
+
+        <el-submenu index="2">
+          <template slot="title"><i class="el-icon-notebook"></i>成绩管理</template>
+          <el-menu-item-group>
+            <el-menu-item index="2-1" @click="currentPage = 'scoreList'">查看成绩</el-menu-item>
+            <el-menu-item index="2-2" @click="currentPage = 'scoreBoard'">成绩统计</el-menu-item>
+          </el-menu-item-group>
+        </el-submenu>
+
+        <el-submenu index="3">
+          <template slot="title" ><i class="el-icon-notebook"></i>个人中心</template>
+          <el-menu-item-group>
+            <el-menu-item index="2-1" @click="currentPage = ''">个人信息</el-menu-item>
+            <el-menu-item index="2-2" @click="currentPage = ''">修改密码</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
       </el-menu>
@@ -35,8 +51,16 @@
         <!-- 学生信息 -->
         <classList v-if="currentPage === 'classList'"></classList>
 
-        <!-- 学生选课情况 -->
-        <courseSelection v-if="currentPage === 'courseSelection'"></courseSelection>
+        <!-- 退课组件 -->
+        <deleteList v-if="currentPage === 'deleteList'"></deleteList>
+
+        <!-- 成绩信息组件 -->
+        <scoreList v-if="currentPage === 'scoreList'"></scoreList>
+
+        <!-- 成绩图表组件 -->
+        <scoreBoard v-if="currentPage === 'scoreBoard'"></scoreBoard>
+
+
       </el-main>
     </el-container>
   </el-container>
@@ -44,12 +68,16 @@
 
 <script>
 import classList from '@/components/student/classList.vue';  // 引入学生信息组件
-import courseSelection from '@/components/student/courseSelection.vue';  // 引入学生选课情况组件
+import deleteList from '@/components/student/deleteList.vue';  // 引入退课组件
+import scoreList from '@/components/student/scoreList.vue'; // 引入成绩组件
+import scoreBoard from '@/components/student/scoreBoard.vue';
 
 export default {
   components: {
-    classList,  // 正确注册 classList 组件
-    courseSelection  // 正确注册 courseSelection 组件
+    classList,
+    deleteList,
+    scoreList,
+    scoreBoard
   },
   data() {
     return {
