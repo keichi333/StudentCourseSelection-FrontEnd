@@ -28,10 +28,19 @@
             <!-- 操作列 -->
             <el-table-column label="操作" width="150">
                 <template slot-scope="scope">
-                    <el-button @click="handleDelete(scope.row)" size="small" type="danger">退课</el-button>
+                    <el-button @click="handleDeleteConfirmation(scope.row)" size="small" type="danger">退课</el-button>
                 </template>
             </el-table-column>
         </el-table>
+
+        <!-- 二次确认对话框 -->
+        <el-dialog title="确认退课" :visible.sync="dialogVisible" width="400px">
+            <span>您确定要退选这门课程：{{ courseToDelete?.courseName }} 吗？</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="handleDelete">确认退课</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -80,8 +89,14 @@ export default {
             this.fetchSelectionData();
         },
 
+        // 显示二次确认对话框
+        handleDeleteConfirmation(course) {
+            this.courseToDelete = course;
+            this.dialogVisible = true;
+        },
+
         // 退课逻辑
-        async handleDelete(course) {
+        async handleDelete() {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
@@ -89,37 +104,32 @@ export default {
                     this.$router.push('/login');  // 如果没有 token，跳转到登录页面
                     return;
                 }
-                console.log('Authorization:', `Bearer ${token}`);
 
-
-                // 发送选择课程请求
                 const response = await axios.delete('http://localhost:8081/student/delete', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     },
                     data: {
-                        courseId: course.courseId,   // 当前行的课程ID
+                        courseId: this.courseToDelete.courseId,   // 当前行的课程ID
                         semester: this.selectionQuery.semester // 当前学期
                     }
-
                 });
-
-                // 打印响应数据，检查结构
-                console.log(response.data);  // 打印后端返回的数据
 
                 if (response.data.code === 1) {
                     this.$message.success('退课成功');
                     this.fetchSelectionData();
+                    this.dialogVisible = false;  // 退课成功后关闭对话框
                 } else {
                     this.$message.error('退课失败: ' + response.data.msg);
+                    this.dialogVisible = false;  // 退课失败后关闭对话框
                 }
             } catch (error) {
                 console.error('退课请求失败', error);
                 this.$message.error('退课失败，请稍后重试');
+                this.dialogVisible = false;  // 退课失败后关闭对话框
             }
         },
     },
-
 
     computed: {
         // 计算总学分
@@ -134,6 +144,8 @@ export default {
                 semester: '2023-2024秋季'  // 默认学期为2023-2024秋季
             },
             selectionList: [],
+            dialogVisible: false,  // 控制对话框是否可见
+            courseToDelete: null,  // 要退的课程
         };
     },
 
