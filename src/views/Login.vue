@@ -13,8 +13,13 @@
       <el-input v-model="studentId" placeholder="请输入学号/工号" style="width: 300px; margin-bottom: 20px;"></el-input>
 
       <!-- 密码输入框 -->
-      <el-input type="password" v-model="password" placeholder="请输入密码"
-        style="width: 300px; margin-bottom: 20px;"></el-input>
+      <el-input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="请输入密码"
+        style="width: 300px; margin-bottom: 20px;">
+        <template slot="suffix">
+          <i class="el-icon-view" @click="togglePasswordVisibility" style="font-size: 18px;"></i>
+        </template>
+      </el-input>
+
 
       <!-- 登录按钮 -->
       <el-button type="primary" @click="login" style="width: 300px;">登录</el-button>
@@ -33,6 +38,7 @@ export default {
       studentId: '',
       password: '',
       role: 'student',  // 默认角色为学生
+      showPassword: false,
     };
   },
   mounted() {
@@ -90,32 +96,47 @@ export default {
     preventScroll(event) {
       event.preventDefault(); // 阻止默认滚动行为
     },
+
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword;
+    }
   },
 };
 </script>
 
 <style scoped>
 /* 禁用页面滚动 */
-html, body {
-  overflow: hidden; /* 禁止页面滚动 */
-  height: 100%; /* 确保页面高度为100% */
+html,
+body {
+  overflow: hidden;
+  /* 禁止页面滚动 */
+  height: 100%;
+  /* 确保页面高度为100% */
 }
 
 .login-page {
-  background-color: #2a3d66; /* 墨蓝色背景 */
-  height: 100vh;  /* 设置为视口高度，确保页面占满整个屏幕 */
+  background-color: #2a3d66;
+  /* 墨蓝色背景 */
+  height: 100vh;
+  /* 设置为视口高度，确保页面占满整个屏幕 */
   display: flex;
-  justify-content: flex-start; /* 使内容向上对齐 */
-  align-items: center; /* 使内容向左对齐 */
+  justify-content: flex-start;
+  /* 使内容向上对齐 */
+  align-items: center;
+  /* 使内容向左对齐 */
   flex-direction: column;
-  padding-top: 100px; /* 给页面顶部留出空间 */
+  padding-top: 100px;
+  /* 给页面顶部留出空间 */
 }
+
 /* 页面的标题 */
 .page-title {
-  font-size: 40px;  /* 将标题字体调大 */
+  font-size: 40px;
+  /* 将标题字体调大 */
   font-weight: bold;
   color: white;
-  margin-bottom: 0px; /* 减少标题下方的间距 */
+  margin-bottom: 0px;
+  /* 减少标题下方的间距 */
 }
 
 .login-container {
@@ -124,7 +145,7 @@ html, body {
   text-align: center;
   padding: 40px;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   background-color: #f9f9f9;
 }
 
