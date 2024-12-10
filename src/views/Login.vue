@@ -9,8 +9,11 @@
         <el-radio label="admin">管理员</el-radio>
       </el-radio-group>
 
-      <!-- 学号输入框 -->
-      <el-input v-model="studentId" placeholder="请输入学号/工号" style="width: 300px; margin-bottom: 20px;"></el-input>
+      <!-- 根据身份动态显示输入框 -->
+      <el-input v-if="role === 'student'" v-model="studentId" placeholder="请输入学号"
+        style="width: 300px; margin-bottom: 20px;"></el-input>
+      <el-input v-if="role === 'teacher'" v-model="staffId" placeholder="请输入工号"
+        style="width: 300px; margin-bottom: 20px;"></el-input>
 
       <!-- 密码输入框 -->
       <el-input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="请输入密码"
@@ -20,12 +23,10 @@
         </template>
       </el-input>
 
-
       <!-- 登录按钮 -->
       <el-button type="primary" @click="login" style="width: 300px;">登录</el-button>
 
     </div>
-
   </div>
 </template>
 
@@ -35,7 +36,8 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      studentId: '',
+      studentId: '', // 学号
+      staffId: '', // 工号
       password: '',
       role: 'student',  // 默认角色为学生
       showPassword: false,
@@ -57,41 +59,43 @@ export default {
         let redirectUrl;
 
         if (this.role === 'student') {
-          apiUrl = 'http://localhost:8081/login';
+          apiUrl = 'http://localhost:8081/login';  // 学生登录 API
           redirectUrl = '/student';
         } else if (this.role === 'teacher') {
-          apiUrl = '#';
+          apiUrl = 'http://localhost:8081/login/teacher';  // 教师登录 API
           redirectUrl = '/teacher';
         } else if (this.role === 'admin') {
-          apiUrl = '#';
-          redirectUrl = '/admin';
+          // apiUrl = 'http://localhost:8081/admin/login';  // 管理员登录 API
+          // redirectUrl = '/admin';
         }
 
-        // 向后端发送登录请求
-        const response = await axios.post(apiUrl, {
-          studentId: this.studentId,
+        // 根据角色动态设置字段名
+        const loginData = {
           password: this.password,
-        });
+        };
+
+        if (this.role === 'student') {
+          loginData.studentId = this.studentId;  // 学生时使用 studentId
+        } else if (this.role === 'teacher') {
+          loginData.staffId = this.staffId;  // 教师时使用 staffId
+        }
+
+        // 发送请求
+        const response = await axios.post(apiUrl, loginData);
 
         // 判断响应码，如果成功（code == 1），获取并存储 JWT
         if (response.data.code === 1) {
-          // 获取后台返回的 JWT 令牌
-          const token = response.data.data; // 令牌是返回数据的 'data' 字段
-
-          // 存储 JWT 令牌到 localStorage
-          localStorage.setItem('token', token);
-
-          // 登录成功，跳转到对应页面
-          this.$router.push(redirectUrl);
+          const token = response.data.data; // 获取返回的 JWT
+          localStorage.setItem('token', token);  // 存储 token
+          this.$router.push(redirectUrl);  // 跳转到对应页面
         } else {
-          // 登录失败，提示错误信息
           this.$message.error(response.data.msg || '用户名或密码错误');
         }
       } catch (error) {
-        // 请求失败时的处理
         this.$message.error('登录请求失败，请稍后重试');
       }
     },
+
 
     preventScroll(event) {
       event.preventDefault(); // 阻止默认滚动行为
@@ -109,34 +113,24 @@ export default {
 html,
 body {
   overflow: hidden;
-  /* 禁止页面滚动 */
   height: 100%;
-  /* 确保页面高度为100% */
 }
 
 .login-page {
   background-color: #2a3d66;
-  /* 墨蓝色背景 */
   height: 100vh;
-  /* 设置为视口高度，确保页面占满整个屏幕 */
   display: flex;
   justify-content: flex-start;
-  /* 使内容向上对齐 */
   align-items: center;
-  /* 使内容向左对齐 */
   flex-direction: column;
   padding-top: 100px;
-  /* 给页面顶部留出空间 */
 }
 
-/* 页面的标题 */
 .page-title {
   font-size: 40px;
-  /* 将标题字体调大 */
   font-weight: bold;
   color: white;
   margin-bottom: 0px;
-  /* 减少标题下方的间距 */
 }
 
 .login-container {

@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Login from '@/views/Login.vue'; // 登录页面
 import StudentView from '@/views/StudentView.vue'; // 学生页面
+import TeacherView from '@/views/TeacherView.vue';
 
 Vue.use(VueRouter);
 
@@ -19,7 +20,12 @@ const routes = [
     path: '/student',
     name: 'student',
     component: StudentView
-  }
+  },
+  {
+    path: '/teacher',
+    name: 'teacher',
+    component: TeacherView
+  },
 ];
 
 const router = new VueRouter({
