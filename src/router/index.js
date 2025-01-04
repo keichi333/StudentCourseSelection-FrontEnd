@@ -19,12 +19,12 @@ const routes = [
   {
     path: '/student',
     name: 'student',
-    component: StudentView
+    component: StudentView  // 学生页
   },
   {
     path: '/teacher',
     name: 'teacher',
-    component: TeacherView
+    component: TeacherView  // 教师页
   },
 ];
 

@@ -14,7 +14,7 @@
       <el-input v-model="searchQuery.courseName" placeholder="课程名" style="width: 150px; margin-right: 10px;"></el-input>
       <el-input v-model="searchQuery.staffId" placeholder="教师号" style="width: 150px; margin-right: 10px;"></el-input>
       <el-input v-model="searchQuery.name" placeholder="教师" style="width: 100px; margin-right: 10px;"></el-input>
-      <el-input v-model="searchQuery.classTime" placeholder="上课时间" style="width: 200px;"></el-input>
+      <el-input v-model="searchQuery.classTime" placeholder="上课时间" style="width: 150px;"></el-input>
 
       <!-- 搜索按钮 -->
       <el-button type="primary" @click="handleSearch" style="margin-left: 10px;">搜索</el-button>
@@ -229,42 +229,47 @@ export default {
 
       // 预定义颜色列表
       const colorList = [
-        '#F1E0D6', '#D3F2D9', '#F9F3C4', '#D6A2D6', '#A6C8FF', '#A8E6A1', '#FFB3A7', '#F9D699', '#D1D1D1'
+        '#FFCDD2', '#C8E6C9', '#FFF59D', '#E1BEE7', '#B3E5FC', '#C8E6C9', '#FFECB3', '#FFAB91', '#BDBDBD'
       ];
-
 
       this.selectionList.forEach(course => {
         const { courseName, classTime } = course;
 
-        // 解析 classTime 格式
-        const match = classTime.match(/(星期[一二三四五])(1|2|3|4|5|6|7|8)-(\d+)/);
-        if (match) {
-          const dayOfWeek = match[1]; // 获取星期几
-          const startSlot = parseInt(match[2], 10) - 1; // 获取开始的节次 (1-8) 转换为 0-7
-          const endSlot = parseInt(match[3], 10) - 1; // 获取结束的节次 (5-8) 转换为 0-7
+        // 将 classTime 字符串按逗号分割成时间段数组
+        const classTimeArray = classTime.split('，');
 
-          // 星期几的映射（星期一到星期五）
-          const daysMapping = {
-            '星期一': 0,
-            '星期二': 1,
-            '星期三': 2,
-            '星期四': 3,
-            '星期五': 4
-          };
+        // 遍历每个时间段字符串
+        classTimeArray.forEach(time => {
+          // 解析 classTime 格式
+          const match = time.match(/(星期[一二三四五])(\d+)-(\d+)/);
+          if (match) {
+            const dayOfWeek = match[1]; // 获取星期几
+            const startSlot = parseInt(match[2], 10) - 1; // 获取开始的节次 (1-8) 转换为 0-7
+            const endSlot = parseInt(match[3], 10) - 1; // 获取结束的节次 (1-8) 转换为 0-7
 
-          // 获取对应星期几的列索引
-          const dayIndex = daysMapping[dayOfWeek];
+            // 星期几的映射（星期一到星期五）
+            const daysMapping = {
+              '星期一': 0,
+              '星期二': 1,
+              '星期三': 2,
+              '星期四': 3,
+              '星期五': 4
+            };
 
-          // 为每门课程分配一个唯一颜色
-          const courseColor = colorList[this.selectionList.indexOf(course) % colorList.length];
+            // 获取对应星期几的列索引
+            const dayIndex = daysMapping[dayOfWeek];
 
-          // 将课程填充到课表中
-          for (let i = startSlot; i <= endSlot; i++) {
-            if (this.timetable[dayIndex][i] === null) {
-              this.timetable[dayIndex][i] = { courseName, courseColor };
+            // 为每门课程分配一个唯一颜色
+            const courseColor = colorList[this.selectionList.indexOf(course) % colorList.length];
+
+            // 将课程填充到课表中
+            for (let i = startSlot; i <= endSlot; i++) {
+              if (this.timetable[dayIndex][i] === null) {
+                this.timetable[dayIndex][i] = { courseName, courseColor };
+              }
             }
           }
-        }
+        });
       });
     },
 

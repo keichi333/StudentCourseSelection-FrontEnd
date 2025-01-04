@@ -19,7 +19,7 @@
       <el-input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="请输入密码"
         style="width: 300px; margin-bottom: 20px;">
         <template slot="suffix">
-          <i class="el-icon-view" @click="togglePasswordVisibility" style="font-size: 18px;"></i>
+          <i class="el-icon-view" @click="togglePasswordVisibility()" style="transform: translateY(52%); " ></i>
         </template>
       </el-input>
 
@@ -169,4 +169,6 @@ body {
 .footer-text a:hover {
   text-decoration: underline;
 }
+
+
 </style>
