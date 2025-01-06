@@ -21,7 +21,8 @@
         </el-select>
 
         <!-- 筛选按钮 -->
-        <el-button type="primary" @click="handleSelectionFilter" style="margin-left: 10px;">筛选</el-button>
+        <el-button type="primary" @click="handleSelectionFilter" :disabled="!canFilter"
+            style="margin-left: 10px;">筛选</el-button>
 
         <!-- 学生成绩情况表格 -->
         <div class="table-container">
@@ -51,8 +52,8 @@
 
         <!-- 操作按钮 -->
         <div class="button-container">
-            <el-button type="primary" @click="enableEditing" v-if="!isEditing"
-                style="margin-right: 10px;" plain>上传成绩</el-button>
+            <el-button type="primary" @click="enableEditing" v-if="!isEditing" style="margin-right: 10px;"
+                plain>上传成绩</el-button>
             <el-button v-if="isEditing" type="primary" @click="saveScores" style="margin-right: 10px;">保存成绩</el-button>
             <el-button v-if="isEditing" type="danger" @click="cancelEditing" style="margin-right: 10px;">取消</el-button>
         </div>
@@ -81,6 +82,12 @@ export default {
             isEditing: false, // 是否处于编辑模式
             originalStudentList: [] // 保存原始成绩，用于取消
         };
+    },
+    computed: {
+        // 只有当学期、课程和班级都选择了，筛选按钮才可用
+        canFilter() {
+            return this.selectionQuery.semester && this.selectionQuery.courseId && this.selectionQuery.class;
+        }
     },
     methods: {
         // 当学期变化时，加载对应课程数据
@@ -202,7 +209,8 @@ export default {
                         classId: item.classId,
                         normalScore: item.normalScore,
                         testScore: item.testScore,
-                        totalScore: item.totalScore
+                        totalScore: item.totalScore,
+                        semester: this.selectionQuery.semester // 添加学期字段
                     }));
                 } else {
                     console.error("获取学生列表数据失败:", response.data.msg);
@@ -233,7 +241,7 @@ export default {
 
                 console.log("保存的成绩：", this.studentList);
 
-                const response = await axios.post('http://localhost:8081/teacher/updateScores', this.studentList, {
+                const response = await axios.put('http://localhost:8081/teacher/updateScores', this.studentList, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -258,10 +266,7 @@ export default {
             // 恢复到编辑之前的成绩
             this.studentList = JSON.parse(JSON.stringify(this.originalStudentList));
         },
-
     },
-
-
 };
 </script>
 
