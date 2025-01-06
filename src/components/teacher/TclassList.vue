@@ -94,9 +94,11 @@ export default {
                         semester: item.semester,
                         courseId: item.courseId,
                         courseName: item.courseName,
-                        classId: item.classId,
-                        classTime: item.classTime
+                        classTime: item.classTime,
+                        classId: item.classId
                     }));
+
+                    console.log('选课情况数据', this.teachList);
 
                     // 填充课表数据
                     this.updateTimetable();

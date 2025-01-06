@@ -18,7 +18,7 @@
         <el-submenu index="2">
           <template slot="title"><i class="el-icon-notebook"></i>成绩管理</template>
           <el-menu-item-group>
-            <el-menu-item index="2-1" @click="currentPage = ''">登记成绩</el-menu-item>
+            <el-menu-item index="2-1" @click="currentPage = 'TscoreList'">登记成绩</el-menu-item>
             <el-menu-item index="2-2" @click="currentPage = ''">成绩统计</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
@@ -43,7 +43,12 @@
 
       <!-- 主要内容 -->
       <el-main>
-        <TclassList v-if="currentPage === 'TclassList'"></TclassList>
+        <keep-alive>
+          <TclassList v-if="currentPage === 'TclassList'"></TclassList>
+          <TscoreList v-if="currentPage === 'TscoreList'"></TscoreList>
+        </keep-alive>
+        
+        
         
       </el-main>
     </el-container>
@@ -52,11 +57,13 @@
 
 <script>
 import TclassList from '@/components/teacher/TclassList.vue';
+import TscoreList from '@/components/teacher/TscoreList.vue'; 
 import axios from 'axios';
 
 export default {
   components: {
     TclassList,
+    TscoreList,
   },
   data() {
     return {
@@ -68,20 +75,11 @@ export default {
     };
   },
   mounted() {
-    // 假设你从API获取用户信息
     this.getUserProfile();
   },
   methods: {
-    // 获取用户资料
     async getUserProfile() {
-      try {
-        const response = await axios.get('/api/user/profile');  // 替换为实际API
-        if (response.data.code === 1) {
-          this.profile = response.data.data;  // 假设返回的数据包含用户信息
-        }
-      } catch (error) {
-        console.error('无法获取用户信息', error);
-      }
+      
     }
   },
 };
