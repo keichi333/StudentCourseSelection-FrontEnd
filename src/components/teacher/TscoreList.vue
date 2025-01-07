@@ -226,7 +226,6 @@ export default {
             this.isEditing = true;
             // 备份当前成绩，供取消时恢复
             this.originalStudentList = JSON.parse(JSON.stringify(this.studentList));
-            console.log("原始成绩：", this.originalStudentList);
         },
 
         // 保存成绩

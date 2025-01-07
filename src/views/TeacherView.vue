@@ -19,7 +19,7 @@
           <template slot="title"><i class="el-icon-notebook"></i>成绩管理</template>
           <el-menu-item-group>
             <el-menu-item index="2-1" @click="currentPage = 'TscoreList'">登记成绩</el-menu-item>
-            <el-menu-item index="2-2" @click="currentPage = ''">成绩统计</el-menu-item>
+            <el-menu-item index="2-2" @click="currentPage = 'TscoreBoard'">成绩统计</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
 
@@ -46,6 +46,7 @@
         <keep-alive>
           <TclassList v-if="currentPage === 'TclassList'"></TclassList>
           <TscoreList v-if="currentPage === 'TscoreList'"></TscoreList>
+          <TscoreBoard v-if="currentPage === 'TscoreBoard'"></TscoreBoard>
         </keep-alive>
         
         
@@ -58,12 +59,14 @@
 <script>
 import TclassList from '@/components/teacher/TclassList.vue';
 import TscoreList from '@/components/teacher/TscoreList.vue'; 
+import TscoreBoard from '@/components/teacher/TscoreBoard.vue';
 import axios from 'axios';
 
 export default {
   components: {
     TclassList,
     TscoreList,
+    TscoreBoard,
   },
   data() {
     return {
