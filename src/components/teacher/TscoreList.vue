@@ -27,8 +27,8 @@
         <!-- 学生成绩情况表格 -->
         <div class="table-container">
             <el-table :data="studentList" style="width: 100%;" height="500px">
-                <el-table-column fixed prop="studentId" label="学号" width="250"></el-table-column>
-                <el-table-column prop="studentName" label="学生姓名" width="250"></el-table-column>
+                <el-table-column fixed prop="studentId" label="学号" width="200"></el-table-column>
+                <el-table-column prop="studentName" label="学生姓名" width="200"></el-table-column>
                 <el-table-column prop="normalScore" label="平时成绩" width="200">
                     <template #default="scope">
                         <el-input v-if="isEditing" v-model="scope.row.normalScore" size="small"></el-input>
@@ -47,16 +47,48 @@
                         <span v-else>{{ scope.row.totalScore }}</span>
                     </template>
                 </el-table-column>
+                <el-table-column prop="totalScore" label="绩点" width="100">
+                    <template #default="scope">
+                        <el-input v-if="isEditing" v-model="scope.row.gpa" size="small"></el-input>
+                        <span v-else>{{ scope.row.gpa }}</span>
+                    </template>
+                </el-table-column>
             </el-table>
         </div>
 
         <!-- 操作按钮 -->
         <div class="button-container">
-            <el-button type="primary" @click="enableEditing" v-if="!isEditing" style="margin-right: 10px;"
+            <el-button type="primary" @click="enableEditing" v-if="!isEditing && isFiltered" style="margin-right: 10px;"
                 plain>上传成绩</el-button>
             <el-button v-if="isEditing" type="primary" @click="saveScores" style="margin-right: 10px;">保存成绩</el-button>
             <el-button v-if="isEditing" type="danger" @click="cancelEditing" style="margin-right: 10px;">取消</el-button>
         </div>
+
+        <el-dialog title="选择成绩占比" :visible.sync="showProportionDialog" width="30%" @close="cancelProportionSelection">
+            <div>
+                <el-form label-position="left" label-width="120px" style="padding-top: 40px;">
+                    <!-- 平时成绩占比 -->
+                    <el-form-item label="平时成绩占比">
+                        <el-slider v-model="proportion.normalProportion" :min="0" :max="100" :step="5" show-tooltip
+                            @input="updateProportions('normalProportion')" />
+                        <span>{{ proportion.normalProportion }}%</span>
+                    </el-form-item>
+
+                    <!-- 考试成绩占比 -->
+                    <el-form-item label="考试成绩占比">
+                        <el-slider v-model="proportion.testProportion" :min="0" :max="100" :step="5" show-tooltip
+                            @input="updateProportions('testProportion')" />
+                        <span>{{ proportion.testProportion }}%</span>
+                    </el-form-item>
+                </el-form>
+            </div>
+
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="cancelProportionSelection">取消</el-button>
+                <el-button type="primary" @click="confirmProportionSelection">确定</el-button>
+            </div>
+        </el-dialog>
+
     </div>
 </template>
 
@@ -80,7 +112,13 @@ export default {
             classOptions: [], // 班级选项
             studentList: [],
             isEditing: false, // 是否处于编辑模式
-            originalStudentList: [] // 保存原始成绩，用于取消
+            isFiltered: false, // 是否已经筛选
+            originalStudentList: [], // 保存原始成绩，用于取消
+            showProportionDialog: false, // 控制比例弹窗显示
+            proportion: {
+                normalProportion: 50, // 平时成绩占比（默认值）
+                testProportion: 50 // 考试成绩占比（与平时成绩互补）
+            }
         };
     },
     computed: {
@@ -177,6 +215,7 @@ export default {
         // 筛选按钮点击事件
         handleSelectionFilter() {
             this.FetchStudentList();
+            this.isFiltered = true; // 标记为已筛选
         },
 
         async FetchStudentList() {
@@ -210,6 +249,7 @@ export default {
                         normalScore: item.normalScore,
                         testScore: item.testScore,
                         totalScore: item.totalScore,
+                        gpa: item.gpa,
                         semester: this.selectionQuery.semester // 添加学期字段
                     }));
                 } else {
@@ -226,7 +266,27 @@ export default {
             this.isEditing = true;
             // 备份当前成绩，供取消时恢复
             this.originalStudentList = JSON.parse(JSON.stringify(this.studentList));
+            this.showProportionDialog = true;
         },
+        cancelProportionSelection() {
+            this.showProportionDialog = false; // 关闭弹窗
+        },
+        confirmProportionSelection() {
+            this.showProportionDialog = false; // 关闭弹窗
+            this.isEditing = true; // 进入编辑模式
+            // 备份当前成绩，供取消时恢复
+            this.originalStudentList = JSON.parse(JSON.stringify(this.studentList));
+        },
+        updateProportions(changedKey) {
+            if (changedKey === 'normalProportion') {
+                // 如果改变的是平时成绩比例
+                this.proportion.testProportion = 100 - this.proportion.normalProportion;
+            } else if (changedKey === 'testProportion') {
+                // 如果改变的是考试成绩比例
+                this.proportion.normalProportion = 100 - this.proportion.testProportion;
+            }
+        },
+
 
         // 保存成绩
         async saveScores() {
@@ -238,9 +298,12 @@ export default {
                     return;
                 }
 
-                console.log("保存的成绩：", this.studentList);
+                console.log("保存的成绩和比例：", this.studentList, this.proportion);
 
-                const response = await axios.put('http://localhost:8081/teacher/updateScores', this.studentList, {
+                const response = await axios.put('http://localhost:8081/teacher/updateScores', {
+                    studentList: this.studentList,
+                    proportion: this.proportion
+                }, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -258,6 +321,7 @@ export default {
                 this.$message.error('保存成绩失败，请稍后重试');
             }
         },
+
 
         // 取消编辑模式
         cancelEditing() {

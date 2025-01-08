@@ -21,7 +21,7 @@
             <el-table-column prop="normalScore" label="平时成绩"></el-table-column>
             <el-table-column prop="testScore" label="考试成绩"></el-table-column>
             <el-table-column prop="totalScore" label="总成绩"></el-table-column>
-            <el-table-column prop="GPA" label="绩点"></el-table-column>
+            <el-table-column prop="gpa" label="绩点"></el-table-column>
 
         </el-table>
     </div>
@@ -64,7 +64,7 @@ export default {
                         normalScore: item.normalScore || '暂未发布',
                         testScore: item.testScore || '暂未发布',
                         totalScore: item.totalScore || '暂未发布',
-                        GPA: this.calculateGPA(item.totalScore)|| '暂未发布'
+                        gpa: item.gpa|| '暂未发布'
                     }));
                 }
             } catch (error) {
@@ -76,20 +76,6 @@ export default {
             this.fetchSelectionData();
         },
 
-        // 计算GPA
-        calculateGPA(totalScore) {
-            if (totalScore >= 90 && totalScore <= 100) return 4.0;
-            if (totalScore >= 85 && totalScore < 90) return 3.7;
-            if (totalScore >= 82 && totalScore < 85) return 3.3;
-            if (totalScore >= 78 && totalScore < 82) return 3.0;
-            if (totalScore >= 75 && totalScore < 78) return 2.7;
-            if (totalScore >= 72 && totalScore < 75) return 2.3;
-            if (totalScore >= 68 && totalScore < 72) return 2.0;
-            if (totalScore >= 66 && totalScore < 68) return 1.7;
-            if (totalScore >= 64 && totalScore < 66) return 1.5;
-            if (totalScore >= 60 && totalScore < 64) return 1.0;
-            return 0.0;
-        }
     },
 
     data() {
