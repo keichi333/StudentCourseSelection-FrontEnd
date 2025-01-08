@@ -79,7 +79,7 @@ export default {
                             text: '分数区间'
                         },
                         ticks: {
-                            autoSkip: false
+                            autoSkip: false // 确保所有区间都显示
                         }
                     },
                     y: {
@@ -94,6 +94,7 @@ export default {
                         max: 10
                     }
                 }
+
             }
         };
     },
@@ -256,10 +257,10 @@ export default {
 
                     // 定义完整分数区间
                     const completeIntervals = [];
-                    for (let i = 0; i <= 100; i += 10) {
+                    for (let i = 0; i <= 90; i += 10) {
                         completeIntervals.push({
                             minScore: i,
-                            maxScore: i + 10,
+                            maxScore: i + 9,
                             numberOfStudents: 0
                         });
                     }
@@ -272,8 +273,13 @@ export default {
                                     item.minScore === interval.minScore &&
                                     item.maxScore === interval.maxScore
                             );
-                            return match || interval;
+                            return {
+                                minScore: interval.minScore,
+                                maxScore: interval.maxScore,
+                                numberOfStudents: match ? match.numberOfStudents : 0 // 若无匹配则默认0
+                            };
                         });
+
 
                     const totalScoreMerged = mergeData(totalScoreRaw);
                     const testScoreMerged = mergeData(testScoreRaw);
@@ -285,34 +291,37 @@ export default {
                     );
 
                     this.chartData = {
-                        labels: labels,
+                        labels: completeIntervals.map(
+                            interval => `${interval.minScore}-${interval.maxScore}`
+                        ),
                         datasets: [
                             {
                                 label: '总成绩分布',
                                 data: totalScoreMerged.map(item => item.numberOfStudents),
-                                borderColor: 'rgba(75, 192, 192, 1)', // 折线颜色
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)', // 点的填充色
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                 fill: false,
-                                tension: 0.1 // 平滑度
+                                tension: 0.1
                             },
                             {
                                 label: '考试成绩分布',
                                 data: testScoreMerged.map(item => item.numberOfStudents),
-                                borderColor: 'rgba(255, 99, 132, 1)', // 折线颜色
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)', // 点的填充色
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
                                 fill: false,
-                                tension: 0.1 // 平滑度
+                                tension: 0.1
                             },
                             {
                                 label: '平时成绩分布',
                                 data: normalScoreMerged.map(item => item.numberOfStudents),
-                                borderColor: 'rgba(54, 162, 235, 1)', // 折线颜色
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)', // 点的填充色
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
                                 fill: false,
-                                tension: 0.1 // 平滑度
+                                tension: 0.1
                             }
                         ]
                     };
+
                 } else {
                     this.$message.error('加载成绩分布数据失败，请稍后重试');
                 }
