@@ -1,6 +1,7 @@
 <template>
     <div>
         <!-- 学期选择 -->
+        <span>学期：</span>
         <el-select v-model="selectionQuery.semester" placeholder="选择学期" style="width: 180px; margin-bottom: 20px;"
             @change="onSemesterChange">
             <el-option v-for="option in semesterOptions" :key="option.value" :label="option.label"
@@ -8,6 +9,7 @@
         </el-select>
 
         <!-- 课程选择 -->
+        <span>课程号：</span>
         <el-select v-model="selectionQuery.courseId" placeholder="选择课程" style="width: 180px; margin-bottom: 20px;"
             :disabled="!selectionQuery.semester" @change="onSemesterAndCourseChange">
             <el-option v-for="option in courseOptions" :key="option.value" :label="option.label"
@@ -27,27 +29,27 @@
         <!-- 学生成绩情况表格 -->
         <div class="table-container">
             <el-table :data="studentList" style="width: 100%;" height="500px">
-                <el-table-column fixed prop="studentId" label="学号" width="200"></el-table-column>
+                <el-table-column fixed prop="studentId" label="学号" width="200" sortable></el-table-column>
                 <el-table-column prop="studentName" label="学生姓名" width="200"></el-table-column>
-                <el-table-column prop="normalScore" label="平时成绩" width="200">
+                <el-table-column prop="normalScore" label="平时成绩" width="200" sortable>
                     <template #default="scope">
                         <el-input v-if="isEditing" v-model="scope.row.normalScore" size="small"></el-input>
                         <span v-else>{{ scope.row.normalScore }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="testScore" label="考试成绩" width="200">
+                <el-table-column prop="testScore" label="考试成绩" width="200" sortable>
                     <template #default="scope">
                         <el-input v-if="isEditing" v-model="scope.row.testScore" size="small"></el-input>
                         <span v-else>{{ scope.row.testScore }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="totalScore" label="总成绩" width="200">
+                <el-table-column prop="totalScore" label="总成绩" width="200" sortable>
                     <template #default="scope">
                         <el-input v-if="isEditing" v-model="scope.row.totalScore" size="small"></el-input>
                         <span v-else>{{ scope.row.totalScore }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="totalScore" label="绩点" width="100">
+                <el-table-column prop="totalScore" label="绩点" width="100" sortable>
                     <template #default="scope">
                         <el-input v-if="isEditing" v-model="scope.row.gpa" size="small"></el-input>
                         <span v-else>{{ scope.row.gpa }}</span>
