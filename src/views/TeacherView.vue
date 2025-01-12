@@ -23,21 +23,25 @@
           </el-menu-item-group>
         </el-submenu>
 
-        <!-- 个人中心 -->
+        <!-- 工具管理 -->
         <el-submenu index="3">
-          <template slot="title"><i class="el-icon-notebook"></i>个人中心</template>
+          <template slot="title"><i class="el-icon-notebook"></i>工具</template>
           <el-menu-item-group>
-            <el-menu-item index="3-1" @click="currentPage = 'TinfoList'">个人信息</el-menu-item>
+            <el-menu-item index="3-1" @click="currentPage = 'Tchat'">大语言模型</el-menu-item>
+          </el-menu-item-group>
+          <el-menu-item-group>
+            <el-menu-item index="3-2" @click="currentPage = 'Tmail'">发送通知</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
 
-        <!-- 工具管理 -->
+        <!-- 个人中心 -->
         <el-submenu index="4">
-          <template slot="title"><i class="el-icon-notebook"></i>工具</template>
+          <template slot="title"><i class="el-icon-notebook"></i>个人中心</template>
           <el-menu-item-group>
-            <el-menu-item index="4-1" @click="currentPage = 'Tchat'">大语言模型</el-menu-item>
+            <el-menu-item index="4-1" @click="currentPage = 'TinfoList'">个人信息</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
+
       </el-menu>
     </el-aside>
 
@@ -107,6 +111,7 @@
           <TscoreBoard v-if="currentPage === 'TscoreBoard'"></TscoreBoard>
           <TinfoList v-if="currentPage === 'TinfoList'"></TinfoList>
           <Tchat v-if="currentPage === 'Tchat'"></Tchat>
+          <Tmail v-if="currentPage === 'Tmail'"></Tmail>
         </keep-alive>
 
       </el-main>
@@ -120,6 +125,7 @@ import TscoreList from '@/components/teacher/TscoreList.vue';
 import TscoreBoard from '@/components/teacher/TscoreBoard.vue';
 import TinfoList from '@/components/teacher/TinfoList.vue';
 import Tchat from '@/components/teacher/Tchat.vue';
+import Tmail from '@/components/teacher/Tmail.vue';
 import axios from 'axios';
 
 export default {
@@ -128,7 +134,8 @@ export default {
     TscoreList,
     TscoreBoard,
     TinfoList,
-    Tchat
+    Tchat,
+    Tmail
   },
   data() {
     return {

@@ -1,7 +1,6 @@
 <template>
     <div>
         <!-- 学期选择 -->
-        <span>学期：</span>
         <el-select v-model="selectionQuery.semester" placeholder="选择学期" style="width: 180px; margin-bottom: 20px;"
             @change="onSemesterChange">
             <el-option v-for="option in semesterOptions" :key="option.value" :label="option.label"
@@ -9,7 +8,6 @@
         </el-select>
 
         <!-- 课程选择 -->
-        <span>课程号：</span>
         <el-select v-model="selectionQuery.courseId" placeholder="选择课程" style="width: 180px; margin-bottom: 20px;"
             :disabled="!selectionQuery.semester" @change="onSemesterAndCourseChange">
             <el-option v-for="option in courseOptions" :key="option.value" :label="option.label"
@@ -28,7 +26,7 @@
 
         <!-- 学生成绩情况表格 -->
         <div class="table-container">
-            <el-table :data="studentList" style="width: 100%;" height="500px">
+            <el-table :data="studentList" style="width: 100%;" height="80vh">
                 <el-table-column fixed prop="studentId" label="学号" width="200" sortable></el-table-column>
                 <el-table-column prop="studentName" label="学生姓名" width="200"></el-table-column>
                 <el-table-column prop="normalScore" label="平时成绩" width="200" sortable>
@@ -66,7 +64,7 @@
             <el-button v-if="isEditing" type="danger" @click="cancelEditing" style="margin-right: 10px;">取消</el-button>
         </div>
 
-        <el-dialog title="选择成绩占比" :visible.sync="showProportionDialog" width="30%" @close="cancelProportionSelection">
+        <el-dialog  title="选择成绩占比" :visible.sync="showProportionDialog" width="30%" @close="cancelProportionSelection">
             <div>
                 <el-form label-position="left" label-width="120px" style="padding-top: 40px;">
                     <!-- 平时成绩占比 -->

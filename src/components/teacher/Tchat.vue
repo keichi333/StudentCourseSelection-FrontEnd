@@ -1,7 +1,7 @@
 <template>
     <div>
         <h1>llama3大语言模型</h1>
-        <div class="chat-wrapper" >
+        <div class="chat-wrapper">
             <div class="chat-container">
                 <!-- 初始提示 -->
                 <div v-if="messages.length === 0" class="welcome-message">
@@ -28,13 +28,17 @@
                 </div>
 
                 <!-- 输入框 -->
+
                 <div class="chat-input" style="padding:20px">
-                    <el-input type="textarea" rows="3" placeholder="请输入你的问题..." v-model="userInput"
-                        @keyup.enter.native="sendMessage"
-                        style="padding-right: 20px; padding-bottom: 20px; font-size: 18px;"></el-input>
-                    <el-button type="primary" @click="sendMessage" :loading="loading" icon="el-icon-chat-dot-round"
-                        plain>发送</el-button>
+                    <textarea rows="2" placeholder="请输入你的问题..." v-model="userInput" @keyup.enter="sendMessage"
+                        class="custom-input"></textarea>
+                    <button @click="sendMessage" :disabled="loading" class="send-button">
+                        发送
+                    </button>
                 </div>
+
+
+
             </div>
         </div>
     </div>
@@ -43,7 +47,7 @@
 
 <script>
 import axios from 'axios';
-import {marked} from 'marked'; // 引入 marked
+import { marked } from 'marked'; // 引入 marked
 import katex from 'katex'; // 引入 katex
 import "katex/dist/katex.min.css"; // 引入 katex 样式
 
@@ -103,7 +107,7 @@ export default {
                 // 调用后端接口
                 const response = await axios.post("http://localhost:11434/api/chat", {
                     model: "llama3",
-                    messages: [{ role: "user", content: userMessage }],
+                    messages: this.messages, // 发送完整的消息上下文
                     stream: false,
                 });
 
@@ -117,8 +121,10 @@ export default {
                 loadingMessage.loading = false;
             } finally {
                 this.loading = false; // 取消发送按钮的加载状态
+                this.scrollToBottom(); // 滚动到底部
             }
         },
+
         simulateTyping(fullText, loadingMessage) {
             let currentIndex = 0;
             loadingMessage.loading = false; // 停止加载动画
@@ -132,7 +138,7 @@ export default {
                 } else {
                     clearInterval(interval); // 停止定时器
                 }
-            }, 10); // 每个字的间隔时间（以毫秒为单位，可以根据需求调整）
+            }, 20); // 每个字的间隔时间（以毫秒为单位，可以根据需求调整）
         },
         scrollToBottom() {
             const chatMessages = this.$refs.chatMessages;
@@ -156,28 +162,42 @@ export default {
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 80%;
-    width: 80%;
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    height: 90%;
+    width: 90%;
+    /* 渐变背景 */
+    border-radius: 25px;
+    /* 更圆的边角 */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1), inset 0 -1px 5px rgba(255, 255, 255, 0.8);
+    /* 柔和阴影 */
     overflow: hidden;
+    padding: 20px;
+    /* 增加内边距 */
 }
 
 .welcome-message {
     flex: 1;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    /* 改为 flex-start，让内容靠上 */
+    margin-top: 200px;
+    /* 添加一个向下的偏移量 */
     font-size: 30px;
     color: #888;
     text-align: center;
 }
 
+
 .chat-messages {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+    background-color: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    border-radius: 15px;
+    margin-bottom: 150px;
+    /* 保留空间，避免覆盖输入框 */
+    /* 内部消息框也圆润 */
+
 }
 
 .message {
@@ -203,46 +223,92 @@ export default {
 
 
 .user-message .message-bubble {
-    background-color: #e1f5fe;
+    background: linear-gradient(145deg, #d0e1ff, #a8c7ff);
+    /* 苹果风格渐变 */
     color: #000;
     text-align: left;
-    border-radius: 10px;
+    border-radius: 20px;
     padding-left: 20px;
     padding-right: 20px;
-    display: inline-block;
     max-width: 60%;
     margin-left: auto;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 .assistant-message .message-bubble {
-    background-color: #e8f5e9;
+    background: linear-gradient(145deg, #e8f6e9, #c8e8cc);
+    /* 苹果风格渐变 */
     color: #000;
     text-align: left;
-    border-radius: 10px;
+    border-radius: 20px;
     padding-left: 20px;
     padding-right: 20px;
-    display: inline-block;
     max-width: 60%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
+
 
 .chat-input {
-    border-top: 1px solid #eee;
-    width: 60%;
+    width: 50%;
+    /* 调整为全宽度 */
     display: flex;
     align-items: center;
-    padding: 10px;
-    background-color: #fff;
-
-    margin: 0 auto;
-    /* 将其水平居中 */
-    position: relative;
-    /* 确保不会受到其他布局影响 */
+    background: rgba(0, 0, 0, 0.03);
+    /* 苹果风格浅色背景 */
+    border-radius: 15px;
+    /* 输入框圆润 */
+    position: absolute;
+    left: 30%;
+    bottom: 10%;
 }
 
-.chat-input .el-input {
+.custom-input {
     flex: 1;
-    margin-right: 10px;
+    border: none;
+    /* 去掉边框 */
+    border-radius: 15px;
+    padding: 5px;
+    font-size: 16px;
+    line-height: 1.5;
+    background: transparent;
+    /* 背景透明，与背景色一致 */
+    outline: none;
+    /* 去掉聚焦时的边框 */
+    resize: none;
+    /* 禁止拖动改变大小 */
+    color: #333;
+    /* 文本颜色 */
+}
+
+.custom-input::placeholder {
+    color: #aaa;
+    /* 占位符颜色 */
+    font-style: italic;
+}
+
+.send-button {
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    padding: 10px 20px;
+    background: #d0e8ff;
+    /* 按钮渐变背景 */
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    /* 动画效果 */
+}
+
+.send-button:hover {
+    background: linear-gradient(145deg, #a8d4ff, #d0e8ff);
+    /* 按钮渐变反转 */
+}
+
+.send-button:disabled {
+    background: #ccc;
+    /* 禁用时按钮颜色 */
+    cursor: not-allowed;
+    /* 禁用时鼠标样式 */
 }
 
 
@@ -278,10 +344,7 @@ export default {
     object-fit: cover;
 }
 
-.user-message .avatar {
-    display: none;
-    /* 不显示用户的头像 */
-}
+
 
 
 @keyframes spin {
