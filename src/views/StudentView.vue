@@ -36,19 +36,64 @@
     <!-- 内容区域 -->
     <el-container>
       <!-- 顶部栏 -->
-      <el-header style="text-align: right; font-size: 12px;height: 40px; padding-top: 20px;">
-        <!-- 退出登录下拉框 -->
-        <el-dropdown @command="handleCommand" style="cursor: pointer; padding-right: 20px;">
-          <span class="el-dropdown-link" @mouseenter="hover = true" @mouseleave="hover = false"
-            :class="{ 'hovered': hover }">
-            <i class="el-icon-user-solid"></i><i style="font-size: large; padding-left: 10px;">欢迎，{{ profile.name }}</i>
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="handlePassword">修改密码</el-dropdown-item>
-            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+      <!-- 顶部栏 -->
+      <el-header
+        style="text-align: right; font-size: 12px; height: 40px; padding-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+
+        <!-- 当前学期 -->
+        <el-tag style="font-size:20px; margin: 5px; font-weight: bold;">当前学期：{{ semester }}</el-tag>
+
+        <!-- 右侧区域（通知收件箱和欢迎 xxx） -->
+        <div style="display: flex; align-items: center; gap: 20px;">
+          <!-- 收件箱按钮 -->
+          <el-button type="info" @click="OpenEmail" plain>通知收件箱</el-button>
+
+          <!-- 退出登录下拉框 -->
+          <el-dropdown @command="handleCommand" style="cursor: pointer;">
+            <span class="el-dropdown-link" @mouseenter="hover = true" @mouseleave="hover = false"
+              :class="{ 'hovered': hover }">
+              <i class="el-icon-user-solid"></i><i style="font-size: large; padding-left: 10px;">欢迎，{{ profile.name
+                }}</i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="handlePassword">修改密码</el-dropdown-item>
+              <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
       </el-header>
+
+      <!-- 通知收件箱弹框 -->
+      <el-dialog title="通知收件箱" style="text-align: center; font-size: large;" :visible.sync="isEmailVisible" width="70%">
+        <el-table :data="emailList"
+          style="width: 100%; height: 60vh; padding-left: 50px; padding-right: 50px; overflow: auto;">
+          <el-table-column type="expand">
+            <template slot-scope="props">
+              <div class="email-expand-container">
+                <p class="email-expand-item">
+                  <span class="email-expand-label">通知标题：</span>
+                  <span class="email-expand-content">{{ props.row.header }}</span>
+                </p>
+                <p class="email-expand-item">
+                  <span class="email-expand-label">通知内容：</span>
+                  <span class="email-expand-content">{{ props.row.content }}</span>
+                </p>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="学期" prop="semester">
+          </el-table-column>
+          <el-table-column label="教师" prop="staffName">
+          </el-table-column>
+          <el-table-column label="课程" prop="courseName" sortable>
+          </el-table-column>
+          <el-table-column label="班级" prop="classId" width="150">
+          </el-table-column>
+          <el-table-column label="发送时间" prop="sendTime" sortable>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
+
 
       <!-- 主要内容 -->
       <el-main>
@@ -139,13 +184,47 @@ export default {
       showCurrentPassword: false,  // 当前密码是否可见
       showNewPassword: false,      // 新密码是否可见
       showConfirmPassword: false,  // 确认密码是否可见
-      hover: false
+      hover: false,
+      isEmailVisible: false,
+      emailList: [],
+      semester: '',
     };
   },
   mounted() {
     this.fetchProfile();
+    this.fetchSemester();
   },
   methods: {
+    // 获取当前学期
+    async fetchSemester() {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          this.$message.error('请先登录');
+          this.$router.push('/login');  // 如果没有 token，跳转到登录页面
+          return;
+        }
+
+        const response = await axios.get('http://localhost:8081/student/semester', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+        });
+
+        this.semester = response.data.data;
+
+        console.log(response.data);
+
+      } catch (error) {
+        console.error('请求学期数据失败', error);
+        this.$message.error('数据请求失败，请稍后重试');
+        if (error.response && error.response.status === 401) {
+          this.$router.push('/login');
+        }
+      }
+    },
+
+
     // 处理下拉菜单点击事件
     handleCommand(command) {
       if (command === 'logout') {
@@ -219,6 +298,61 @@ export default {
         this.$message.error('密码修改请求失败，请稍后重试');
       }
     },
+
+    // 打开通知收件箱
+    OpenEmail() {
+      this.isEmailVisible = true;
+      this.fetchEmailList();
+    },
+
+    async fetchEmailList() {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          this.$message.error('请先登录');
+          this.$router.push('/login');  // 如果没有 token，跳转到登录页面
+          return;
+        }
+
+        const response = await axios.get('http://localhost:8081/student/EmailList', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.data && response.data.data) {
+          this.emailList = response.data.data.map(item => ({
+            semester: item.semester,
+            staffName: item.staffName,
+            courseName: item.courseName,
+            classId: item.classId,
+            header: item.header,
+            content: item.content,
+            sendTime: this.formatDateTime(item.sendTime)
+          }));
+        }
+      } catch (error) {
+        console.error('请求通知信息失败', error);
+        this.$message.error('通知信息请求失败，请稍后重试');
+      }
+    },
+
+    // 添加一个用于格式化时间的辅助方法
+    formatDateTime(dateString) {
+      if (!dateString) return ""; // 防止空值导致错误
+      const date = new Date(dateString); // 将字符串转换为 Date 对象
+      const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }; // 定义日期格式化选项，不包括时区
+      return date.toLocaleString('zh-CN', options); // 使用 zh-CN 格式化
+    },
+
+
   },
 };
 </script>
@@ -227,5 +361,31 @@ export default {
 .hovered {
   color: rgb(80, 121, 245);
   text-decoration: underline;
+}
+
+.email-expand-container {
+  width: 60%;
+  color: #333;
+  /* 默认字体颜色 */
+  line-height: 1.8;
+  /* 行高 */
+}
+
+.email-expand-item {
+  margin-bottom: 10px;
+  /* 间距 */
+  display: flex;
+  /* 横向排列 */
+}
+
+.email-expand-label {
+  flex-shrink: 0;
+  /* 防止标签被压缩 */
+  white-space: nowrap;
+  /* 防止标签换行 */
+  font-weight: bold;
+  /* 加粗 */
+  margin-right: 10px;
+  /* 标签和内容的间距 */
 }
 </style>

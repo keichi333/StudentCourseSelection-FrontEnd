@@ -3,12 +3,6 @@
     <!-- 搜索框区域 -->
     <div class="search-container" style="margin-bottom: 10px;">
       <h3>课程信息</h3>
-      <!-- 学期下拉选择框 -->
-      <el-select v-model="searchQuery.semester" placeholder="学期" style="width: 150px; margin-right: 10px;">
-        <el-option label="2023-2024秋季" value="2023-2024秋季"></el-option>
-        <el-option label="2023-2024冬季" value="2023-2024冬季"></el-option>
-        <el-option label="2023-2024春季" value="2023-2024春季"></el-option>
-      </el-select>
 
       <el-input v-model="searchQuery.courseId" placeholder="课程号" style="width: 150px; margin-right: 10px;"></el-input>
       <el-input v-model="searchQuery.courseName" placeholder="课程名" style="width: 150px; margin-right: 10px;"></el-input>
@@ -38,10 +32,9 @@
         </el-table-column>
       </el-table>
 
-
       <!-- 分页组件 -->
       <el-pagination :current-page="currentPage" :page-size="pageSize" :total="total" @current-change="handlePageChange"
-        layout="total, prev, pager, next, jumper" :page-size-options="[3, 5, 10, 20]" :page-count="pageCount"
+        layout="total, prev, pager, next, jumper" :page-size-options="[3, 5, 10, 20]"
         :disabled-next="currentPage >= pageCount">
       </el-pagination>
     </div>
@@ -51,14 +44,6 @@
       <!-- 选课情况 -->
       <div style="flex: 1; margin-right: 10px;">
         <h3>选课情况</h3>
-        <!-- 选课情况筛选学期下拉框 -->
-        <el-select v-model="selectionQuery.semester" placeholder="筛选学期" style="width: 180px; margin-bottom: 20px;">
-          <el-option label="2023-2024秋季" value="2023-2024秋季"></el-option>
-          <el-option label="2023-2024冬季" value="2023-2024冬季"></el-option>
-          <el-option label="2023-2024春季" value="2023-2024春季"></el-option>
-        </el-select>
-        <!-- 筛选按钮 -->
-        <el-button type="primary" @click="handleSelectionFilter" style="margin-left: 10px;">筛选</el-button>
         <!-- 选课情况表格 -->
         <el-table :data="selectionList" style="width: 100%" height="350px">
           <el-table-column fixed prop="courseId" label="课程号" width="120"></el-table-column>
@@ -108,7 +93,7 @@ export default {
       total: 0,
       pageCount: 0,
       searchQuery: {
-        semester: '2023-2024秋季',
+        semester: '',
         courseId: '',
         courseName: '',
         staffId: '',
@@ -118,7 +103,7 @@ export default {
 
       // 选课情况
       selectionQuery: {
-        semester: '2023-2024秋季'  // 默认学期为2023-2024秋季
+        semester: ''
       },
       selectionList: [],
 
@@ -131,10 +116,42 @@ export default {
     };
   },
   mounted() {
-    this.fetchData();
+    this.fetchSemester();
     this.fetchSelectionData();
+
   },
   methods: {
+    // 获取当前学期
+    async fetchSemester() {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          this.$message.error('请先登录');
+          this.$router.push('/login');  // 如果没有 token，跳转到登录页面
+          return;
+        }
+
+        const response = await axios.get('http://localhost:8081/student/semester', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+        });
+
+        this.searchQuery.semester = response.data.data;
+        this.selectionQuery.semester = response.data.data;
+
+        this.fetchData();
+
+      } catch (error) {
+        console.error('请求学期数据失败', error);
+        this.$message.error('数据请求失败，请稍后重试');
+        if (error.response && error.response.status === 401) {
+          this.$router.push('/login');
+        }
+      }
+    },
+
+
     // ******************************
     // ******************************
     // 请求课程数据
@@ -163,11 +180,15 @@ export default {
           }
         });
 
-        this.ClassList = response.data.data;
-        this.total = response.data.total;
+        this.ClassList = response.data.data.classList;
+        this.total = response.data.data.total;
         this.pageCount = Math.ceil(this.total / this.pageSize);
 
-        if (this.currentPage > this.pageCount) {
+        console.log(this.total, this.pageSize)
+        console.log('总页数:', this.pageCount);
+
+        // 如果当前页大于总页数，且总页数不为0，则跳转到最后一页
+        if (this.currentPage > this.pageCount && this.pageCount !== 0) {
           this.currentPage = this.pageCount;
           this.fetchData();  // 重新请求数据
         }
@@ -323,15 +344,17 @@ export default {
     // 清空搜索条件
     clearSearch() {
       this.searchQuery = {
-        semester: '',
         courseId: '',
         courseName: '',
         staffId: '',
         name: '',
-        classTime: ''
+        classTime: '',
+        semester: this.searchQuery.semester // 保持 semester 的值
       };
       this.fetchData();
     },
+
+
 
     // 切换分页
     handlePageChange(page) {
