@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import Login from '@/views/Login.vue'; // 登录页面
 import StudentView from '@/views/StudentView.vue'; // 学生页面
 import TeacherView from '@/views/TeacherView.vue';
+import AdminView from '@/views/AdminView.vue';
 
 Vue.use(VueRouter);
 
@@ -25,6 +26,11 @@ const routes = [
     path: '/teacher',
     name: 'teacher',
     component: TeacherView  // 教师页
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: AdminView  // 管理员页
   },
 ];
 

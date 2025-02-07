@@ -1,15 +1,6 @@
 <template>
     <div>
         <h3>成绩统计</h3>
-        <!-- 筛选学期 -->
-        <el-select v-model="selectionQuery.semester" placeholder="筛选学期" style="width: 180px; margin-bottom: 20px;">
-            <el-option label="2023-2024秋季" value="2023-2024秋季"></el-option>
-            <el-option label="2023-2024冬季" value="2023-2024冬季"></el-option>
-            <el-option label="2023-2024春季" value="2023-2024春季"></el-option>
-        </el-select>
-
-        <!-- 筛选按钮 -->
-        <el-button type="primary" @click="handleSelectionFilter" style="margin-left: 10px;">筛选</el-button>
 
         <!-- 图表展示 -->
         <div class="chart-container">
@@ -33,6 +24,35 @@ export default {
     },
 
     methods: {
+        // 获取当前学期
+        async fetchSemester() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    this.$message.error('请先登录');
+                    this.$router.push('/login');  // 如果没有 token，跳转到登录页面
+                    return;
+                }
+
+                const response = await axios.get('http://localhost:8081/student/semester', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+                this.selectionQuery.semester = response.data.data;
+
+                this.fetchSelectionData();
+
+            } catch (error) {
+                console.error('请求学期数据失败', error);
+                this.$message.error('数据请求失败，请稍后重试');
+                if (error.response && error.response.status === 401) {
+                    this.$router.push('/login');
+                }
+            }
+        },
+
+
         // 显示逻辑
         async fetchSelectionData() {
             try {
@@ -100,7 +120,7 @@ export default {
     data() {
         return {
             selectionQuery: {
-                semester: '2023-2024秋季'  // 默认学期为2023-2024秋季
+                semester: '' 
             },
             selectionList: [],
             chartData: null,
@@ -140,6 +160,7 @@ export default {
     },
 
     mounted() {
+        this.fetchSemester();
         this.fetchSelectionData();
     }
 };

@@ -22,8 +22,11 @@
         <el-table-column prop="courseId" label="课程号" width="180"></el-table-column>
         <el-table-column prop="courseName" label="课程名" width="180"></el-table-column>
         <el-table-column prop="staffId" label="教师号"></el-table-column>
-        <el-table-column prop="name" label="教师"></el-table-column>
-        <el-table-column prop="classTime" label="上课时间"></el-table-column>
+        <el-table-column prop="name" label="教师" width="120"></el-table-column>
+        <el-table-column prop="classId" label="班级号" width="120"></el-table-column>
+        <el-table-column prop="classTime" label="上课时间" width="200"></el-table-column>
+        <el-table-column prop="maxNumber" label="最大人数"></el-table-column>
+        <el-table-column prop="curNumber" label="当前人数"></el-table-column>
         <!-- 操作列 -->
         <el-table-column label="操作" width="150">
           <template slot-scope="scope">
@@ -117,7 +120,8 @@ export default {
   },
   mounted() {
     this.fetchSemester();
-    this.fetchSelectionData();
+    this.fetchData();
+    this.fetchSelectionData();  
 
   },
   methods: {
@@ -139,8 +143,10 @@ export default {
 
         this.searchQuery.semester = response.data.data;
         this.selectionQuery.semester = response.data.data;
+        console.log("查询到的学期是：" + this.selectionQuery.semester);
 
         this.fetchData();
+        this.fetchSelectionData();
 
       } catch (error) {
         console.error('请求学期数据失败', error);
@@ -184,8 +190,7 @@ export default {
         this.total = response.data.data.total;
         this.pageCount = Math.ceil(this.total / this.pageSize);
 
-        console.log(this.total, this.pageSize)
-        console.log('总页数:', this.pageCount);
+        console.log(this.ClassList);
 
         // 如果当前页大于总页数，且总页数不为0，则跳转到最后一页
         if (this.currentPage > this.pageCount && this.pageCount !== 0) {
@@ -321,12 +326,13 @@ export default {
         if (response.data.code === 1) {
           this.$message.success('选课成功');
           this.fetchSelectionData();
+          this.fetchData();  // 刷新课程数据
         } else {
           this.$message.error('选课失败: ' + response.data.msg);
         }
       } catch (error) {
         console.error('选课请求失败', error);
-        this.$message.error('选课失败，请稍后重试');
+        this.$message.error('选课失败，超出选课人数限制');
       }
     },
 

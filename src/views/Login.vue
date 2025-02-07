@@ -14,12 +14,14 @@
         style="width: 300px; margin-bottom: 20px;"></el-input>
       <el-input v-if="role === 'teacher'" v-model="staffId" placeholder="请输入工号"
         style="width: 300px; margin-bottom: 20px;"></el-input>
+      <el-input v-if="role === 'admin'" v-model="adminId" placeholder="请输入工号"
+        style="width: 300px; margin-bottom: 20px;"></el-input>
 
       <!-- 密码输入框 -->
       <el-input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="请输入密码"
         style="width: 300px; margin-bottom: 20px;">
         <template slot="suffix">
-          <i class="el-icon-view" @click="togglePasswordVisibility()" style="transform: translateY(52%); " ></i>
+          <i class="el-icon-view" @click="togglePasswordVisibility()" style="transform: translateY(52%); "></i>
         </template>
       </el-input>
 
@@ -38,6 +40,7 @@ export default {
     return {
       studentId: '', // 学号
       staffId: '', // 工号
+      adminId: '', // 管理员工号
       password: '',
       role: 'student',  // 默认角色为学生
       showPassword: false,
@@ -65,8 +68,8 @@ export default {
           apiUrl = 'http://localhost:8081/login/teacher';  // 教师登录 API
           redirectUrl = '/teacher';
         } else if (this.role === 'admin') {
-          // apiUrl = 'http://localhost:8081/admin/login';  // 管理员登录 API
-          // redirectUrl = '/admin';
+          apiUrl = 'http://localhost:8081/login/admin';  // 管理员登录 API
+          redirectUrl = '/admin';
         }
 
         // 根据角色动态设置字段名
@@ -78,6 +81,8 @@ export default {
           loginData.studentId = this.studentId;  // 学生时使用 studentId
         } else if (this.role === 'teacher') {
           loginData.staffId = this.staffId;  // 教师时使用 staffId
+        } else if (this.role === 'admin') {
+          loginData.adminId = this.adminId;  // 管理员时使用 adminId
         }
 
         // 发送请求
@@ -169,6 +174,4 @@ body {
 .footer-text a:hover {
   text-decoration: underline;
 }
-
-
 </style>
