@@ -510,7 +510,7 @@ export default {
         // 切换分页
         handlePageChange(page) {
             this.currentPage = page;
-            this.fetchData();
+            this.fetchStudentData();
         },
 
         formatDate(dateStr) {
