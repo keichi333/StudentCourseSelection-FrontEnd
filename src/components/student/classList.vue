@@ -143,8 +143,7 @@ export default {
 
         this.searchQuery.semester = response.data.data;
         this.selectionQuery.semester = response.data.data;
-        console.log("查询到的学期是：" + this.selectionQuery.semester);
-
+       
         this.fetchData();
         this.fetchSelectionData();
 

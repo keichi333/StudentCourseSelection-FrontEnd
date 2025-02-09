@@ -2,23 +2,17 @@
     <div class="main-container">
         <!-- 搜索框区域 -->
         <div class="search-container" style="margin-bottom: 10px;">
-            <h3>学生选课信息</h3>
+            <h3>教师课程安排信息</h3>
 
-            <el-input v-model="searchQuery.studentId" placeholder="学号"
+            <el-input v-model="searchQuery.staffId" placeholder="教师号"
                 style="width: 150px; margin-right: 10px;"></el-input>
-            <el-input v-model="searchQuery.name" placeholder="学生姓名"
+            <el-input v-model="searchQuery.name" placeholder="教师姓名"
                 style="width: 150px; margin-right: 10px;"></el-input>
             <el-input v-model="searchQuery.courseId" placeholder="课程号"
                 style="width: 150px; margin-right: 10px;"></el-input>
             <el-input v-model="searchQuery.courseName" placeholder="课程名"
                 style="width: 100px; margin-right: 10px;"></el-input>
             <el-input v-model="searchQuery.classId" placeholder="班级"
-                style="width: 150px; margin-right: 10px;"></el-input>
-            <el-input v-model="searchQuery.staffId" placeholder="教师号"
-                style="width: 150px; margin-right: 10px;"></el-input>
-            <el-input v-model="searchQuery.staffName" placeholder="教师名"
-                style="width: 150px; margin-right: 10px;"></el-input>
-            <el-input v-model="searchQuery.credit" placeholder="学分"
                 style="width: 150px; margin-right: 10px;"></el-input>
             <el-input v-model="searchQuery.classTime" placeholder="上课时间"
                 style="width: 150px; margin-right: 10px;"></el-input>
@@ -36,21 +30,17 @@
         <el-button type="primary" @click="handleAdd()"
             style="margin-left: 10px; margin-top: 20px; margin-bottom: 10px;">新增</el-button>
 
-        <!-- 学生选课信息表格 -->
-        <el-table :data="StudentCourseList" stripe style="width: 100%; margin-bottom: 20px;">
-            <el-table-column prop="studentId" label="学号"></el-table-column>
-            <el-table-column prop="name" label="学生姓名"></el-table-column>
+        <!-- 教师课程安排信息表格 -->
+        <el-table :data="TeacherCourseList" stripe style="width: 100%; margin-bottom: 20px;">
+            <el-table-column prop="staffId" label="教师号"></el-table-column>
+            <el-table-column prop="name" label="教师姓名"></el-table-column>
             <el-table-column prop="courseId" label="课程号"></el-table-column>
             <el-table-column prop="courseName" label="课程名"></el-table-column>
             <el-table-column prop="classId" label="班级"></el-table-column>
-            <el-table-column prop="staffId" label="教师号"></el-table-column>
-            <el-table-column prop="staffName" label="教师名"></el-table-column>
-            <el-table-column prop="credit" label="学分"></el-table-column>
             <el-table-column prop="classTime" label="上课时间" width="250px"></el-table-column>
-            <!-- 操作列 -->
             <el-table-column label="操作" width="300px">
                 <template slot-scope="scope">
-                    <el-button type="danger" @click="handleDelete(scope.row)" size="small">退课</el-button>
+                    <el-button type="danger" @click="handleDelete(scope.row)" size="small">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -63,27 +53,24 @@
 
 
 
-        <!-- 新增选课信息表单 -->
-        <el-dialog title="新增选课信息" :visible.sync="AddDialogVisible" width="80%"
+        <!-- 新增课程安排信息表单 -->
+        <el-dialog title="新增课程安排" :visible.sync="AddDialogVisible" width="80%"
             :style="{ maxHeight: '90%', overflow: 'auto' }" @close="resetAddForm">
-            <el-row :gutter="20" >
-                
-                <!-- 左侧：学生选课信息 -->
+            <el-row :gutter="20">
+                <!-- 左侧：教师选课信息 -->
                 <el-col :span="12">
-                    <h1>学生选课信息</h1>
+                    <h1>教师选课信息</h1>
                     <el-form :model="addForm" label-width="80px">
-                        <el-form-item label="学号">
-                            <el-input v-model="addForm.studentId" placeholder="请输入学号"
-                                @blur="fetchStudentCourses" style="width: 200px;"></el-input>
+                        <el-form-item label="教师号">
+                            <el-input v-model="addForm.staffId" placeholder="请输入教师号" @blur="fetchTeacherCourses"
+                                style="width: 200px;"></el-input>
                             <!-- 查询按钮 -->
-                            <el-button type="primary" @click="fetchStudentCourses"
+                            <el-button type="primary" @click="fetchTeacherCourses"
                                 style="margin-left: 10px;">查询</el-button>
                         </el-form-item>
-                        <el-table :data="studentCourses" stripe style="width: 100%;">
+                        <el-table :data="teacherCourses" stripe style="width: 100%;" height="400px">
                             <el-table-column prop="courseId" label="课程号"></el-table-column>
                             <el-table-column prop="courseName" label="课程名"></el-table-column>
-                            <el-table-column prop="staffId" label="教师号"></el-table-column>
-                            <el-table-column prop="staffName" label="教师名"></el-table-column>
                             <el-table-column prop="classId" label="班级"></el-table-column>
                             <el-table-column prop="classTime" label="上课时间"></el-table-column>
                         </el-table>
@@ -96,24 +83,41 @@
                     <!-- 课程号搜索框 -->
                     <el-input v-model="courseSearchQuery.courseId" placeholder="输入课程号搜索"
                         style="width: 200px; margin-bottom: 10px;" @input="fetchAllCourses"></el-input>
-                    <el-table :data="allCourses" stripe style="width: 100%;">
+                    <el-table :data="allCourses" stripe style="width: 100%;" height="400px">
                         <el-table-column prop="courseId" label="课程号"></el-table-column>
                         <el-table-column prop="courseName" label="课程名"></el-table-column>
-                        <el-table-column prop="staffId" label="教师号"></el-table-column>
-                        <el-table-column prop="name" label="教师姓名"></el-table-column>
-                        <el-table-column prop="classId" label="班级"></el-table-column>
-                        <el-table-column prop="classTime" label="上课时间"></el-table-column>
                         <el-table-column label="操作">
                             <template slot-scope="scope">
-                                <el-button type="primary" @click="addCourseToStudent(scope.row)"
-                                    size="small">添加</el-button>
+                                <el-button type="primary" @click="openCourseForm(scope.row)" size="small">添加</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
                 </el-col>
             </el-row>
-
         </el-dialog>
+
+        <!-- 添加课程弹窗 -->
+        <el-dialog title="添加课程" :visible.sync="courseFormVisible" width="30%" @close="resetCourseForm">
+            <el-form ref="courseFormRef" :model="courseForm" :rules="courseFormRules" label-width="100px">
+                <el-form-item label="课程号">
+                    <el-input v-model="courseForm.courseId" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="课程名">
+                    <el-input v-model="courseForm.courseName" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="上课时间" prop="classTime">
+                    <el-input v-model="courseForm.classTime" placeholder="请输入上课时间"></el-input>
+                </el-form-item>
+                <el-form-item label="最大人数" prop="maxStudents">
+                    <el-input v-model="courseForm.maxStudents" placeholder="请输入最大人数"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="courseFormVisible = false">取消</el-button>
+                <el-button type="primary" @click="submitCourseForm">确定</el-button>
+            </span>
+        </el-dialog>
+
     </div>
 
 
@@ -126,8 +130,8 @@ import axios from 'axios';
 export default {
     data() {
         return {
-            // 学生列表
-            StudentCourseList: [], // 初始化为空数组
+            // 教师课程安排列表
+            TeacherCourseList: [], // 初始化为空数组
             // 其他数据
             currentPage: 1,
             pageSize: 10,
@@ -135,26 +139,41 @@ export default {
             pageCount: 0,
             searchQuery: {
                 semester: '',
-                studentId: '',
+                staffId: '',
                 name: '',
                 courseId: '',
                 courseName: '',
                 classId: '',
-                staffId: '',
-                staffName: '',
-                credit: '',
                 classTime: '',
             },
 
             AddDialogVisible: false,
+            courseFormVisible: false, // 控制添加课程表单的显示
             addForm: {
-                studentId: '', // 学号
+                staffId: '', // 教师号
             },
-            studentCourses: [], // 学生的选课信息
+            teacherCourses: [], // 教师的选课信息
             allCourses: [], // 所有课程列表
-
             courseSearchQuery: {
                 courseId: '', // 课程号搜索项
+            },
+            courseForm: {
+                courseId: '', // 课程号
+                courseName: '', // 课程名
+                classTime: '', // 上课时间
+                maxStudents: '', // 最大人数
+            },
+
+            courseFormRules: {
+                classId: [
+                    { required: true, message: '请输入班级', trigger: 'blur' }
+                ],
+                classTime: [
+                    { required: true, message: '请输入上课时间', trigger: 'blur' }
+                ],
+                maxStudents: [
+                    { required: true, message: '请输入最大人数', trigger: 'blur' }
+                ]
             },
 
 
@@ -162,7 +181,7 @@ export default {
     },
     mounted() {
         this.fetchSemester();
-        this.fetchStudentCourseData();
+        this.fetchTeacherCourseData();
     },
     methods: {
         async fetchSemester() {
@@ -182,7 +201,7 @@ export default {
 
 
                 this.searchQuery.semester = response.data.data;
-                this.fetchStudentCourseData();  // 刷新学生数据
+                this.fetchTeacherCourseData();  // 刷新教师课程安排数据
 
             } catch (error) {
                 console.error('请求学期数据失败', error);
@@ -195,8 +214,8 @@ export default {
 
         // ******************************
         // ******************************
-        // 请求学生选课数据
-        async fetchStudentCourseData() {
+        // 请求教师课程安排数据
+        async fetchTeacherCourseData() {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
@@ -205,7 +224,7 @@ export default {
                     return;
                 }
 
-                const response = await axios.get('http://localhost:8081/admin/studentcourselist', {
+                const response = await axios.get('http://localhost:8081/admin/teachercourselist', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     },
@@ -213,20 +232,17 @@ export default {
                         page: this.currentPage,
                         size: this.pageSize,
                         semester: this.searchQuery.semester,
-                        studentId: this.searchQuery.studentId,
+                        staffId: this.searchQuery.staffId,
                         name: this.searchQuery.name,
                         courseId: this.searchQuery.courseId,
                         courseName: this.searchQuery.courseName,
                         classId: this.searchQuery.classId,
-                        staffId: this.searchQuery.staffId,
-                        staffName: this.searchQuery.staffName,
-                        credit: this.searchQuery.credit,
                         classTime: this.searchQuery.classTime,
                     },
 
                 });
 
-                this.StudentCourseList = response.data.data.studentCourseList;
+                this.TeacherCourseList = response.data.data.teacherCourseList;
                 this.total = response.data.data.total;
                 this.pageCount = Math.ceil(this.total / this.pageSize);
 
@@ -234,7 +250,7 @@ export default {
                 // 如果当前页大于总页数，且总页数不为0，则跳转到最后一页
                 if (this.currentPage > this.pageCount && this.pageCount !== 0) {
                     this.currentPage = this.pageCount;
-                    this.fetchStudentCourseData();
+                    this.fetchTeacherCourseData();
                 }
             } catch (error) {
                 console.error('请求课程数据失败', error);
@@ -252,8 +268,8 @@ export default {
         // 删除
         async handleDelete(CourseSelection) {
             try {
-                this.$confirm('确认退课吗?', '提示', {
-                    confirmButtonText: '退课',
+                this.$confirm('确认删除该课程安排吗?', '提示', {
+                    confirmButtonText: '删除',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(async () => {
@@ -267,11 +283,11 @@ export default {
 
                     // 使用 params 传递参数
                     const response = await axios.delete(
-                        `http://localhost:8081/admin/studentcourse`,
+                        `http://localhost:8081/admin/teachercourse`,
                         {
                             headers: { 'Authorization': `Bearer ${token}` },
                             params: {
-                                studentId: CourseSelection.studentId,
+                                staffId: CourseSelection.staffId,
                                 courseId: CourseSelection.courseId,
                                 classId: CourseSelection.classId,
                                 semester: this.searchQuery.semester
@@ -280,17 +296,17 @@ export default {
                     );
 
                     if (response.data.code === 1) {
-                        this.$message.success('退课成功');
-                        this.fetchStudentCourseData();  // 刷新学生数据
+                        this.$message.success('删除成功');
+                        this.fetchTeacherCourseData();  // 刷新教师课程安排数据
                     } else {
-                        this.$message.error('退课失败: ' + response.data.msg);
+                        this.$message.error('删除失败: ' + response.data.msg);
                     }
                 }).catch(() => {
-                    this.$message.info('退课操作已取消');
+                    this.$message.info('删除操作已取消');
                 });
             } catch (error) {
-                console.error('退课失败', error);
-                this.$message.error('退课失败，请稍后重试');
+                console.error('删除失败', error);
+                this.$message.error('删除失败，请稍后重试');
             }
         },
 
@@ -306,8 +322,8 @@ export default {
             this.fetchAllCourses(); // 加载所有课程
         },
 
-        // 根据学号获取学生的选课信息
-        async fetchStudentCourses() {
+        // 根据教师号获取教师的选课信息
+        async fetchTeacherCourses() {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
@@ -316,21 +332,21 @@ export default {
                     return;
                 }
 
-                const response = await axios.get('http://localhost:8081/admin/selection', {
+                const response = await axios.get('http://localhost:8081/admin/teachercourse', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     },
                     params: {
-                        studentId: this.addForm.studentId,
+                        staffId: this.addForm.staffId,
                         semester: this.searchQuery.semester,
                     },
                 });
 
-                this.studentCourses = response.data.data;
-                console.log("学生的选课信息：", this.studentCourses);
+                this.teacherCourses = response.data.data;
+                console.log("教师的选课信息：", this.teacherCourses);
             } catch (error) {
-                console.error('获取学生选课信息失败', error);
-                this.$message.error('获取学生选课信息失败，请稍后重试');
+                console.error('获取教师选课信息失败', error);
+                this.$message.error('获取教师选课信息失败，请稍后重试');
             }
         },
 
@@ -344,7 +360,7 @@ export default {
                     return;
                 }
 
-                const response = await axios.get('http://localhost:8081/admin/courses', {
+                const response = await axios.get('http://localhost:8081/admin/allcourses', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     },
@@ -361,8 +377,26 @@ export default {
             }
         },
 
-        // 添加课程到学生的选课信息
-        async addCourseToStudent(course) {
+        // 打开添加课程表单
+        openCourseForm(course) {
+            this.courseForm.courseId = course.courseId;
+            this.courseForm.courseName = course.courseName;
+            this.courseFormVisible = true;
+        },
+
+        submitCourseForm() {
+            this.$refs.courseFormRef.validate((valid) => {
+                if (valid) {
+                    // 表单验证通过后，调用添加课程的方法
+                    this.addCourseToTeacher();
+                } else {
+                    this.$message.error('请完善必填信息');
+                    return false;
+                }
+            });
+        },
+
+        async addCourseToTeacher() {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
@@ -371,29 +405,26 @@ export default {
                     return;
                 }
 
-                console.log("添加课程：", course);
-                console.log("学生学号：", this.addForm.studentId);
-                console.log("当前学期：", this.searchQuery.semester);
                 const response = await axios.post(
-                    'http://localhost:8081/admin/studentcourse',
+                    'http://localhost:8081/admin/teachercourse',
                     null,
                     {
                         headers: { 'Authorization': `Bearer ${token}` },
                         params: {
-                            studentId: this.addForm.studentId,
                             semester: this.searchQuery.semester,
-                            courseId: course.courseId,
-                            staffId: course.staffId,
-                            classId: course.classId,
-                            classTime: course.classTime,
+                            courseId: this.courseForm.courseId,
+                            staffId: this.addForm.staffId,
+                            classTime: this.courseForm.classTime,
+                            maxStudents: this.courseForm.maxStudents,
                         }
                     }
                 );
 
                 if (response.data.code === 1) {
                     this.$message.success('添加成功');
-                    this.fetchStudentCourses(); // 刷新学生的选课信息
-                    this.fetchStudentCourseData();
+                    this.fetchTeacherCourses(); // 刷新教师的选课信息
+                    this.fetchTeacherCourseData();  // 刷新教师课程安排数据
+                    this.courseFormVisible = false; // 关闭表单
                 } else {
                     this.$message.error('添加失败: ' + response.data.msg);
                 }
@@ -403,19 +434,29 @@ export default {
             }
         },
 
-        // 保存新增选课信息
-        async handleAddSave() {
-            this.AddDialogVisible = false;
-            this.fetchStudentCourseData(); // 刷新主表格数据
+        // 重置添加课程弹窗的表单（关闭时调用）
+        resetCourseForm() {
+            this.courseForm = {
+                courseId: '',
+                courseName: '',
+                classId: '',
+                classTime: '',
+                maxStudents: '',
+            };
+            // 重置表单验证状态
+            if (this.$refs.courseFormRef) {
+                this.$refs.courseFormRef.resetFields();
+            }
         },
 
         // 重置新增表单
         resetAddForm() {
             this.addForm = {
-                studentId: '',
+                staffId: '',
             };
-            this.studentCourses = [];
+            this.teacherCourses = [];
         },
+
 
 
 
@@ -426,24 +467,21 @@ export default {
 
         // 处理搜索
         handleSearch() {
-            this.fetchStudentCourseData();
+            this.fetchTeacherCourseData();
         },
 
         // 清空搜索条件
         clearSearch() {
             this.searchQuery = {
                 semester: this.searchQuery.semester,
-                studentId: '',
+                staffId: '',
                 name: '',
                 courseId: '',
                 courseName: '',
                 classId: '',
-                staffId: '',
-                staffName: '',
-                credits: '',
                 classTime: '',
             };
-            this.fetchStudentCourseData();
+            this.fetchTeacherCourseData();
         },
 
 
@@ -451,7 +489,7 @@ export default {
         // 切换分页
         handlePageChange(page) {
             this.currentPage = page;
-            this.fetchStudentCourseData();
+            this.fetchTeacherCourseData();
         },
 
 

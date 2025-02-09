@@ -19,7 +19,7 @@
                     <template slot="title"><i class="el-icon-notebook"></i>教师管理</template>
                     <el-menu-item-group>
                         <el-menu-item index="2-1" @click="currentPage = 'AdmTeacherInfo'">教师信息管理</el-menu-item>
-                        <el-menu-item index="2-2" @click="currentPage = ''">教师课程安排查看</el-menu-item>
+                        <el-menu-item index="2-2" @click="currentPage = 'AdmTeacherSelection'">教师课程安排查看</el-menu-item>
                     </el-menu-item-group>
                 </el-submenu>
 
@@ -131,7 +131,9 @@
                 <AdmStudentInfo v-if="currentPage === 'AdmStudentInfo'"></AdmStudentInfo>
                 <AdmStudentSelection v-if="currentPage === 'AdmStudentSelection'"></AdmStudentSelection>
 
+                <!-- 教师信息管理 -->
                 <AdmTeacherInfo v-if="currentPage === 'AdmTeacherInfo'"></AdmTeacherInfo>
+                <AdmTeacherSelection v-if="currentPage === 'AdmTeacherSelection'"></AdmTeacherSelection>
 
 
             </el-main>
@@ -190,12 +192,14 @@ import axios from 'axios';
 import AdmTeacherInfo from '@/components/admin/AdmTeacherInfo.vue';
 import AdmStudentInfo from '@/components/admin/AdmStudentInfo.vue';
 import AdmStudentSelection from '@/components/admin/AdmStudentSelection.vue';
+import AdmTeacherSelection from '@/components/admin/AdmTeacherSelection.vue';
 
 export default {
     components: {
         AdmTeacherInfo,
         AdmStudentInfo,
         AdmStudentSelection,
+        AdmTeacherSelection,
     },
     data() {
         return {
