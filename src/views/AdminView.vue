@@ -27,9 +27,7 @@
                 <el-submenu index="3">
                     <template slot="title"><i class="el-icon-notebook"></i>课程管理</template>
                     <el-menu-item-group>
-                        <el-menu-item index="3-1" @click="currentPage = ''">课程信息管理</el-menu-item>
-                        <el-menu-item index="3-2" @click="currentPage = ''">课程安排管理</el-menu-item>
-                        <el-menu-item index="3-3" @click="currentPage = ''">查看课程选课情况</el-menu-item>
+                        <el-menu-item index="3-1" @click="currentPage = 'AdmCourseInfo'">课程信息管理</el-menu-item>
                     </el-menu-item-group>
                 </el-submenu>
 
@@ -134,6 +132,8 @@
                 <!-- 教师信息管理 -->
                 <AdmTeacherInfo v-if="currentPage === 'AdmTeacherInfo'"></AdmTeacherInfo>
                 <AdmTeacherSelection v-if="currentPage === 'AdmTeacherSelection'"></AdmTeacherSelection>
+                
+                <AdmCourseInfo v-if="currentPage === 'AdmCourseInfo'"></AdmCourseInfo>
 
 
             </el-main>
@@ -193,6 +193,7 @@ import AdmTeacherInfo from '@/components/admin/AdmTeacherInfo.vue';
 import AdmStudentInfo from '@/components/admin/AdmStudentInfo.vue';
 import AdmStudentSelection from '@/components/admin/AdmStudentSelection.vue';
 import AdmTeacherSelection from '@/components/admin/AdmTeacherSelection.vue';
+import AdmCourseInfo from '@/components/admin/AdmCourseInfo.vue';
 
 export default {
     components: {
@@ -200,6 +201,7 @@ export default {
         AdmStudentInfo,
         AdmStudentSelection,
         AdmTeacherSelection,
+        AdmCourseInfo,
     },
     data() {
         return {
